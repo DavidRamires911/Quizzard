@@ -7,6 +7,7 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
+import FinishScreen from "./FinishScreen";
 
 const initialState = {
   questions: [],
@@ -36,6 +37,7 @@ function reducer(state, action) {
       };
     case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
+    case "complete": return{ ...state, status: "complete"}
     default:
       throw new Error("Unknown action type");
   }
@@ -46,13 +48,11 @@ export default function App() {
     initialState
   );
 
-
-
   const numQuestions = questions.length;
   const maxPossiblePoints = questions.reduce(
-    (prev, curr) => prev + curr.points, 0
+    (prev, curr) => prev + curr.points,
+    0
   );
-
 
   useEffect(() => {
     fetch("http://localhost:8001/questions")
@@ -84,10 +84,18 @@ export default function App() {
               dispatch={dispatch}
               answer={answer}
             />
-            <NextButton dispatch={dispatch} answer={answer} >
+            <NextButton
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+              numQuestions={numQuestions}
+            >
               {" "}
             </NextButton>
           </>
+        )}
+        {status === "complete" && (
+          <FinishScreen points={points} maxPossiblePoints={maxPossiblePoints} />
         )}
       </Main>
     </div>
